@@ -2,7 +2,7 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
-import Score from '../components/Score';
+import AlertDialog from './AlertDialog';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -18,10 +18,10 @@ const useStyles = makeStyles((theme) => ({
 
 let grid = []
 let visible = []
-const complexity = 36
+const complexity = 8
+let intervalId = null
 
 function populateGrid() {
-    grid = []
     for (let index = 0; index < complexity; index++) {
         grid.push(String(index) + 'A')
         grid.push(String(index) + 'B')
@@ -42,6 +42,12 @@ export default function FullWidthGrid() {
     const classes = useStyles();
     const [selection, setSelection] = React.useState([null, null])
     const [tries, setTries] = React.useState(0)
+    const [time, setTime] = React.useState(0)
+    const [finished, setFinished] = React.useState(false)
+    const [score, setScore] = React.useState({
+        tries: undefined,
+        time: undefined
+    })
 
     function handleSelect(element) {
         if (selection[1] === null && visible.indexOf(element) === -1) {
@@ -66,16 +72,20 @@ export default function FullWidthGrid() {
         }
     }
 
-    function checkIfFlip(element) {
-        if (visible.indexOf(element) !== -1) {
+    function checkAnimation(element) {
+        if (visible.indexOf(element) !== -1 && !finished) {
             return "animate__animated animate__flip animate__fast"
+        }
+        if (finished){
+            const speeds = ['slower', 'slow', 'fast', 'faster']
+            return `animate__animated animate__bounceOut animate__${speeds[Math.floor(Math.random() * 3)]}`
         }
         else {
             return ""
         }
     }
 
-    function checkIfBordered(element) {
+    function checkSelected(element) {
         if (selection.indexOf(element) !== -1) {
             return "selected"
         }
@@ -87,24 +97,50 @@ export default function FullWidthGrid() {
     React.useEffect(() => {
         if (selection[1] !== null) {
             setTries(prev => prev + 1)
-            setTimeout(() => {
-                if (selection[0].substring(0, selection[0].length - 1) !== selection[1].substring(0, selection[1].length - 1)) {
+            if (selection[0].substring(0, selection[0].length - 1) !== selection[1].substring(0, selection[1].length - 1)) {
+                setTimeout(() => {
                     selection.forEach(e => {
                         visible.splice(visible.indexOf(e), 1)
                     })
-                }
-                setSelection([null, null])
-            }, 2000)
+                    setSelection([null, null])
+                }, 2000)
+            }
+            else {
+                setTimeout(() => { setSelection([null, null]) }, 800)
+
+            }
         }
     }, [selection])
 
+    React.useEffect(() => {
+        if (visible.length === complexity * 2 && selection[1] === null) {
+            clearInterval(intervalId)
+            setFinished(true)
+            setTimeout(() => {
+                setScore({
+                    tries: tries,
+                    time: time
+                })
+            }, 3000);
+        }
+    }, [selection, time, tries])
+
+    React.useEffect(() => {
+        intervalId = setInterval(() => {
+            setTime(prev => prev + 1)
+        }, 1000)
+    }, [])
+
     return (
         <div className={classes.root}>
-            <Score
+            <h2>Time: {new Date(time * 1000).toISOString().substr(11, 8)}</h2>
+            <h2>Tries: {tries}</h2>
+            <AlertDialog
+                score = {score}
             />
             <Grid container spacing={2}>
                 {grid.map(element => <Grid key={element} item xs={3} md={2} lg={1}>
-                    <Paper onClick={() => handleSelect(element)} className={`${classes.paper} ${checkIfFlip(element)} ${checkIfBordered(element)}`}>
+                    <Paper onClick={() => handleSelect(element)} className={`${classes.paper} ${checkAnimation(element)} ${checkSelected(element)}`}>
                         <img className="image" src={checkIfVisible(element)} alt={element} srcset="" />
                     </Paper>
                 </Grid>)}
