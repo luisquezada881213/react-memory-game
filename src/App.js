@@ -1,13 +1,13 @@
-import './App.css';
+import "./App.css";
 
-import Grid from './components/Grid'
+import Grid from "./components/Grid";
 
 function App() {
-  return (
-    <div>
-      <Grid/>
-    </div>
-  );
+	return (
+		<div>
+			<Grid/>
+		</div>
+	);
 }
 
 export default App;
