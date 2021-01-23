@@ -12,7 +12,9 @@ const useStyles = makeStyles((theme) => ({
 	paper: {
 		padding: theme.spacing(1),
 		textAlign: "center",
-		color: theme.palette.text.secondary,
+        color: theme.palette.text.secondary,
+        border: 'solid 2px black',
+        background: "#eef2f3"
 	},
 }));
 
@@ -80,15 +82,6 @@ export default function FullWidthGrid() {
 			setSelection(current);
 		}
 
-	}
-
-	function checkIfVisible(element) {
-		if (visible.indexOf(element) !== -1) {
-			return `images/${element.substring(0, element.length - 1)}.png`;
-		}
-		else {
-			return "images/question.png";
-		}
 	}
 
 	function checkAnimation(element) {
@@ -162,7 +155,7 @@ export default function FullWidthGrid() {
 			{!score.time && <Grid container spacing={2}>
 				{grid.map(element => <Grid spacing={1} key={element} item sx={2} sm={2} md={1} lg={1}>
 					<Paper onClick={() => handleSelect(element)} className={`${classes.paper} ${checkAnimation(element)} ${checkSelected(element)}`}>
-						<img className="image" src={checkIfVisible(element)} alt={element} srcSet="" />
+						<img style={{opacity:visible.indexOf(element) !== -1 ? 1 : 0}} className="image" src={`images/${element.substring(0, element.length - 1)}.png`} alt={element} srcSet="" />
 					</Paper>
 				</Grid>)}
 			</Grid>}
