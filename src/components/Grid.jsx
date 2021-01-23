@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
 
 let grid = []
 let visible = []
-const complexity = 8
+const complexity = 1
 let intervalId = null
 
 function populateGrid() {
@@ -48,6 +48,20 @@ export default function FullWidthGrid() {
         tries: undefined,
         time: undefined
     })
+
+    function reset(){
+        visible = []
+        setTime(0)
+        setTries(0)
+        setFinished(false)
+        setScore({
+            time: null,
+            tries: null
+        })
+        intervalId = setInterval(()=>{
+            setTime(prev => prev + 1)
+        },1000)
+    }
 
     function handleSelect(element) {
         if (selection[1] === null && visible.indexOf(element) === -1) {
@@ -137,14 +151,15 @@ export default function FullWidthGrid() {
             <h2>Tries: {tries}</h2>
             <AlertDialog
                 score = {score}
+                reset = {reset}
             />
-            <Grid container spacing={2}>
+            {!score.time && <Grid container spacing={2}>
                 {grid.map(element => <Grid key={element} item xs={3} md={2} lg={1}>
                     <Paper onClick={() => handleSelect(element)} className={`${classes.paper} ${checkAnimation(element)} ${checkSelected(element)}`}>
                         <img className="image" src={checkIfVisible(element)} alt={element} srcset="" />
                     </Paper>
                 </Grid>)}
-            </Grid>
+            </Grid>}
         </div>
     );
 }
