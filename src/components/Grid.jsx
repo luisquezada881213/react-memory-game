@@ -13,8 +13,7 @@ const useStyles = makeStyles((theme) => ({
 		padding: theme.spacing(1),
 		textAlign: "center",
         color: theme.palette.text.secondary,
-        border: 'solid 2px black',
-        background: "#eef2f3"
+        border: 'solid 1px gray'
 	},
 }));
 
