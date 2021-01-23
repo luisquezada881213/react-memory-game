@@ -10,7 +10,7 @@ const useStyles = makeStyles((theme) => ({
         padding: 40
     },
     paper: {
-        padding: theme.spacing(2),
+        padding: theme.spacing(1),
         textAlign: 'center',
         color: theme.palette.text.secondary,
     },
@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
 
 let grid = []
 let visible = []
-const complexity = 1
+const complexity = 36
 let intervalId = null
 
 function populateGrid() {
@@ -35,9 +35,6 @@ function shuffleArray(array) {
     }
 }
 
-populateGrid();
-shuffleArray(grid)
-
 export default function FullWidthGrid() {
     const classes = useStyles();
     const [selection, setSelection] = React.useState([null, null])
@@ -48,9 +45,14 @@ export default function FullWidthGrid() {
         tries: undefined,
         time: undefined
     })
+    const [started, setStarted] = React.useState(false)
 
-    function reset(){
+    function reset() {
+        setStarted(false)
         visible = []
+        grid = []
+        populateGrid()
+        shuffleArray(grid)
         setTime(0)
         setTries(0)
         setFinished(false)
@@ -58,13 +60,16 @@ export default function FullWidthGrid() {
             time: null,
             tries: null
         })
-        intervalId = setInterval(()=>{
-            setTime(prev => prev + 1)
-        },1000)
+        setTimeout(() => {
+            intervalId = setInterval(() => {
+                setTime(prev => prev + 1)
+            }, 1000)
+            setStarted(true)
+        }, 2000)
     }
 
     function handleSelect(element) {
-        if (selection[1] === null && visible.indexOf(element) === -1) {
+        if (selection[1] === null && visible.indexOf(element) === -1 && started) {
             visible.push(element)
             const current = [...selection]
             if (current[0] === null) {
@@ -87,12 +92,16 @@ export default function FullWidthGrid() {
     }
 
     function checkAnimation(element) {
-        if (visible.indexOf(element) !== -1 && !finished) {
+        if (visible.indexOf(element) !== -1 && !finished && started) {
             return "animate__animated animate__flip animate__fast"
         }
-        if (finished){
+        if (finished && started) {
             const speeds = ['slower', 'slow', 'fast', 'faster']
             return `animate__animated animate__bounceOut animate__${speeds[Math.floor(Math.random() * 3)]}`
+        }
+        if (!finished && !started) {
+            const speeds = ['slower', 'slow', 'fast', 'faster']
+            return `animate__animated animate__bounceIn animate__${speeds[Math.floor(Math.random() * 3)]}`
         }
         else {
             return ""
@@ -121,7 +130,6 @@ export default function FullWidthGrid() {
             }
             else {
                 setTimeout(() => { setSelection([null, null]) }, 800)
-
             }
         }
     }, [selection])
@@ -135,14 +143,12 @@ export default function FullWidthGrid() {
                     tries: tries,
                     time: time
                 })
-            }, 3000);
+            }, 2000);
         }
     }, [selection, time, tries])
 
     React.useEffect(() => {
-        intervalId = setInterval(() => {
-            setTime(prev => prev + 1)
-        }, 1000)
+        reset()
     }, [])
 
     return (
@@ -150,11 +156,11 @@ export default function FullWidthGrid() {
             <h2>Time: {new Date(time * 1000).toISOString().substr(11, 8)}</h2>
             <h2>Tries: {tries}</h2>
             <AlertDialog
-                score = {score}
-                reset = {reset}
+                score={score}
+                reset={reset}
             />
             {!score.time && <Grid container spacing={2}>
-                {grid.map(element => <Grid key={element} item xs={3} md={2} lg={1}>
+                {grid.map(element => <Grid spacing={1} key={element} item sx={2} sm={2} md={1} lg={1}>
                     <Paper onClick={() => handleSelect(element)} className={`${classes.paper} ${checkAnimation(element)} ${checkSelected(element)}`}>
                         <img className="image" src={checkIfVisible(element)} alt={element} srcset="" />
                     </Paper>

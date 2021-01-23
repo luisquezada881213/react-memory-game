@@ -17,7 +17,7 @@ export default function AlertDialog({score, reset}) {
         <DialogTitle id="alert-dialog-title">{"Congratulations!"}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Your time was {score.time}, and you tried {score.tries} times
+            Your time was {score.time && new Date(score.time * 1000).toISOString().substr(11, 8)}, and you tried {score.tries} times
           </DialogContentText>
         </DialogContent>
         <DialogActions>
